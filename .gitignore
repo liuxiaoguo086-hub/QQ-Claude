@@ -1,0 +1,7 @@
+node_modules/
+logs/
+data/bridge.pid
+data/*.json
+!data/config.json
+.DS_Store
+*.log

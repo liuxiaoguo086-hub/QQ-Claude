@@ -1,0 +1,20 @@
+{
+  "name": "qq-claude-bridge",
+  "version": "1.0.0",
+  "description": "QQ → Claude 桥接程序，基于 QQ 官方 Bot 平台 WebSocket",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "daemon": "node index.js --daemon",
+    "stop": "node index.js --stop",
+    "status": "node index.js --status"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.211",
+    "qq-official-bot": "^1.2.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

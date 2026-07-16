@@ -1,0 +1,43 @@
+{
+  "qq": {
+    "appId": "你的QQ_Bot_AppID",
+    "appSecret": "你的QQ_Bot_AppSecret",
+    "sandbox": true
+  },
+  "claude": {
+    "apiKey": "",
+    "baseUrl": "https://api.deepseek.com/anthropic",
+    "model": "deepseek-v4-pro"
+  },
+  "claudeCode": {
+    "cwd": "D:/claude_memory",
+    "maxTurns": 50,
+    "taskTimeoutMs": 1800000,
+    "gitBashPath": "D:/Git/bin/bash.exe"
+  },
+  "permissions": {
+    "approvalTimeoutMs": 300000,
+    "autoAllowTools": [
+      "Read", "Glob", "Grep", "TodoWrite", "Task", "WebSearch", "WebFetch",
+      "Bash(ls:*)", "Bash(dir:*)", "Bash(cat:*)", "Bash(head:*)", "Bash(tail:*)",
+      "Bash(pwd)", "Bash(echo:*)", "Bash(find:*)", "Bash(grep:*)", "Bash(rg:*)",
+      "Bash(git status:*)", "Bash(git log:*)", "Bash(git diff:*)", "Bash(git show:*)",
+      "Bash(curl:*)", "Bash(wget:*)", "Bash(ping:*)", "Bash(type:*)",
+      "Bash(which:*)", "Bash(uname:*)", "Bash(whoami:*)", "Bash(hostname:*)",
+      "Bash(df:*)", "Bash(du:*)", "Bash(free:*)", "Bash(date:*)",
+      "Bash(node --version)", "Bash(npm --version)", "Bash(python --version)"
+    ]
+  },
+  "progress": {
+    "enabled": true,
+    "initialDelayMs": 30000,
+    "intervalMs": 60000
+  },
+  "security": {
+    "allowedUsers": []
+  },
+  "memory": {
+    "dir": "D:/claude_memory",
+    "saveEveryExchange": true
+  }
+}
