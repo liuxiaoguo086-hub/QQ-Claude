@@ -1,6 +1,6 @@
 <p align="center">
   <h1 align="center">🔗 QQ-Claude</h1>
-  <p align="center"><strong>手机 → QQ → Claude Code → 你的电脑</strong></p>
+  <p align="center"><strong>📱 手机 QQ 上的 Claude Code —— 用 QQ 操控你的电脑</strong></p>
   <p align="center">一条 QQ 消息，让 Claude Code 在你的电脑上执行任何操作。</p>
 </p>
 
@@ -35,11 +35,9 @@
 
 ## 💡 这是什么
 
-**QQ-Claude** 是一个极简的桥接程序。你在手机 QQ 上给 Bot 发私聊，消息被透明转发给 [Claude Code](https://claude.ai/code)（通过 [Claude Agent SDK](https://docs.anthropic.com/en/docs/claude-code/agent-sdk)），Claude Code 在你的电脑上执行操作，结果返回手机。
+**QQ-Claude** 基于 [Claude Agent SDK](https://docs.anthropic.com/en/docs/claude-code/agent-sdk) 运行一个完整的 Claude Code 实例，入口从终端换成了 QQ。你在手机 QQ 上给 Bot 发私聊，Claude 直接在你的电脑上执行操作，结果返回手机。
 
-和所有同类项目的关键区别：**桥接层只做转发，不做 AI**。
-
-> 不发 API 请求、不定制工具、不写系统提示词、不实现 agent 循环。真正的"大脑"是 Claude Code 自身——等同于你坐在电脑前开了一个 `claude` 终端。桥接程序只负责三件事：**转发消息**、**转发审批**、**推送进度**。
+> 与桌面终端 Claude Code 共享同一套 SDK、同一套工具集和同一份记忆库，两端能力一致。
 
 ---
 
@@ -48,19 +46,21 @@
 ```
 ┌──────────────────────────────────────────────────┐
 │                                                  │
-│   QQ 通道        桥接程序           Claude Code    │
+│   QQ-Claude 是一个完整的 Claude Code 实例          │
 │                                                  │
-│   只关心消息      只关心转发          只关心任务     │
-│   "收到什么"     "往哪发"           "怎么做"      │
+│   入口: QQ 消息                                   │
+│   大脑: Claude Agent SDK + AI 模型                 │
+│   工具: 完整工具集（读写、编辑、Git、命令执行等）     │
+│   审批: QQ 消息实时批准/拒绝                       │
+│   记忆: 与桌面终端共享 D:\claude_memory            │
+│   扩展: Skills / MCP 可按需接入                    │
 │                                                  │
-│   不定义工具 ❌   不调 API ❌        完整工具集 ✅   │
-│   不写提示词 ❌   不做 AI ❌         Skills ✅     │
-│   不管任务 ❌     不存状态 ❌         MCP ✅        │
+│   你用 QQ，它就在 QQ 里干活；                      │
+│   你坐终端前，它就在终端里干活。                     │
+│   同一份能力，你选方便的入口。                       │
 │                                                  │
 └──────────────────────────────────────────────────┘
 ```
-
-好处：当 Claude Code 发布新功能（新工具、新模型、新 Skill），你的 QQ 通道**自动享有**，无需改任何代码。
 
 ---
 
@@ -413,6 +413,11 @@ node index.js --stop
 ```
 
 模式匹配规则：<code>工具名(参数前缀:*)</code>。
+</details>
+
+<details>
+<summary><b>支持 Skills 和 MCP 吗？</b></summary>
+当前工具集覆盖了日常使用的核心能力（读写文件、执行命令、Git、搜索等）。Skills 和 MCP 服务器是 Claude Agent SDK 原生支持的，可以通过配置接入，本项目没有锁定这些能力——如有需要，后期自行配备即可。
 </details>
 
 <details>

@@ -68,8 +68,8 @@ export function warn(...args) {
 
 export function error(...args) {
   const line = `[${timestamp()}] ERROR ${args.join(" ")}`;
-  getStream().write(line + "\n");
-  // error 始终输出到 stderr
+  // 同步写确保 exit 前落盘（createWriteStream 异步写可能在 process.exit 时丢失）
+  try { fs.appendFileSync(LOG_FILE, line + "\n"); } catch (_) {}
   console.error(line);
 }
 

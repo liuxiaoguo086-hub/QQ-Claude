@@ -75,6 +75,12 @@ export function loadConfig(overrides = {}) {
   // 深度合并：defaults < fileConfig < overrides
   _config = deepMerge(defaults, fileConfig, overrides);
 
+  // 环境变量兜底：config.json 中的空字符串不应覆盖环境变量
+  // （曾因脱敏后 config.json 留下 "apiKey": "" 覆盖 ANTHROPIC_AUTH_TOKEN，导致开机自启静默失败）
+  _config.claude.apiKey  = _config.claude.apiKey  || process.env.ANTHROPIC_AUTH_TOKEN || "";
+  _config.claude.baseUrl = _config.claude.baseUrl || process.env.ANTHROPIC_BASE_URL   || "https://api.deepseek.com/anthropic";
+  _config.claude.model   = _config.claude.model   || process.env.ANTHROPIC_MODEL      || "deepseek-v4-pro";
+
   // 确保 memory 目录存在
   fs.mkdirSync(_config.memory.dir, { recursive: true });
 
