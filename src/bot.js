@@ -12,6 +12,10 @@ import { getChannel, setBotGetter } from "./reply-channel.js";
 import { info, warn, error } from "./logger.js";
 
 let bot = null;
+let lastMessageTime = Date.now();       // 最后一次收到消息的时间
+let hasReceivedSinceRestart = false;    // 本次连接是否收到过消息（收到过才触发重连）
+let heartbeatTimer = null;
+const HEARTBEAT_INTERVAL_MS = 1 * 60 * 60 * 1000;  // 1 小时
 
 /**
  * 启动 QQ Bot，连接官方 WebSocket
@@ -49,6 +53,8 @@ export async function createQQClient() {
 
   // 私聊消息
   bot.on("message.private", async (event) => {
+    lastMessageTime = Date.now();
+    hasReceivedSinceRestart = true;
     const userId = String(event.user_openid || event.author?.user_openid || "");
     const messageText = (event.content || "").trim();
 
@@ -98,12 +104,40 @@ export async function createQQClient() {
 
   // 群聊 @消息（记录，暂不处理）
   bot.on("message.group", async (event) => {
+    lastMessageTime = Date.now();
+    hasReceivedSinceRestart = true;
     const groupId = String(event.group_openid || "");
     const memberId = String(event.author?.member_openid || "");
     const text = event.content || "";
 
     info(`[msg] 群聊 | group=${groupId} | from=${memberId} | text=${text.slice(0, 80)}`);
   });
+
+  // 心跳检测：仅当之前收到过消息但突然 1h 无消息时重连（防僵死）
+  // 刚启动还没人说话时不动，避免空转重启
+  async function heartbeatCheck() {
+    const since = Date.now() - lastMessageTime;
+    if (!hasReceivedSinceRestart) {
+      // 启动后还没收到过消息，跳过
+      return;
+    }
+    if (since > HEARTBEAT_INTERVAL_MS) {
+      const hours = Math.round(since / 3600000);
+      warn(`💓 ${hours}h 无消息，重连…`);
+      try {
+        bot.stop?.();
+        await new Promise(r => setTimeout(r, 2000));
+        await bot.start();
+        lastMessageTime = Date.now();
+        hasReceivedSinceRestart = false;
+        info("💓 已重连");
+      } catch (e) {
+        error(`💓 重连失败: ${e.message}`);
+      }
+    }
+  }
+  heartbeatTimer = setInterval(heartbeatCheck, HEARTBEAT_INTERVAL_MS);
+  heartbeatTimer.unref?.(); // 不阻止进程退出
 
   // 启动连接
   await bot.start();
