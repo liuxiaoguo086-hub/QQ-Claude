@@ -1,6 +1,6 @@
 <p align="center">
   <h1 align="center">🔗 QQ-Claude</h1>
-  <p align="center"><strong>📱 手机 QQ 上的 Claude Code —— 用 QQ 操控你的电脑</strong></p>
+  <p align="center"><strong>📱 手机 QQ 上的 Claude Code — 用 QQ 操控你的电脑</strong></p>
   <p align="center">一条 QQ 消息，让 Claude Code 在你的电脑上执行任何操作。</p>
 </p>
 
