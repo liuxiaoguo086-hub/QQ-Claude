@@ -135,9 +135,9 @@ Claude Code 在执行 **写文件、编辑、删除、执行非只读 Bash** 等
 - 坐回电脑前用 `claude` 时，它能读到之前手机上对话的上下文
 - 两端通过 `MEMORY.md` 索引感知彼此的存在
 
-### 🔄 连续对话
+### 💓 心跳检测
 
-基于 Agent SDK 的 session resume：第二条消息自动接续上次会话，Claude 记得之前的对话内容。会话 ID 持久化在 `D:\claude_memory\data\qq-bridge-sessions.json`，重启不丢失。`/clear` 可随时重置。
+WebSocket 偶发僵死（连得上但收不到推送），程序每 1 小时自动检查：若之前收到过消息但突然断联超过 1 小时，自动重连。会话 ID 持久化在 `D:\claude_memory\data\qq-bridge-sessions.json`，重启不丢失。`/clear` 可随时重置。
 
 ---
 
