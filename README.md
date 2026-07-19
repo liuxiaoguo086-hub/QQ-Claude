@@ -8,6 +8,8 @@
   <img src="https://img.shields.io/badge/Node.js-≥22-green" alt="Node.js">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
   <img src="https://img.shields.io/badge/platform-Windows-lightgrey" alt="Platform">
+  <br>
+  <sub>Created by <a href="https://github.com/liuxiaoguo086-hub">liuxiaoguo086-hub</a> · Powered by <a href="https://www.npmjs.com/package/@anthropic-ai/claude-agent-sdk">Claude Agent SDK</a> · Messaging by <a href="https://q.qq.com/">QQ 开放平台</a></sub>
 </p>
 
 ---

@@ -16,5 +16,11 @@
   },
   "engines": {
     "node": ">=22"
-  }
+  },
+  "author": "liuxiaoguo086-hub",
+  "contributors": [
+    "liuxiaoguo086-hub",
+    "Claude (Anthropic)",
+    "QQ 开放平台 (Tencent)"
+  ]
 }
