@@ -135,9 +135,27 @@ Claude Code 在执行 **写文件、编辑、删除、执行非只读 Bash** 等
 - 坐回电脑前用 `claude` 时，它能读到之前手机上对话的上下文
 - 两端通过 `MEMORY.md` 索引感知彼此的存在
 
-### 💓 心跳检测
+### 💓 智能心跳检测（回复超时）
 
-WebSocket 偶发僵死（连得上但收不到推送），程序每 1 小时自动检查：若之前收到过消息但突然断联超过 1 小时，自动重连。会话 ID 持久化在 `D:\claude_memory\data\qq-bridge-sessions.json`，重启不丢失。`/clear` 可随时重置。
+QQ WebSocket 偶发僵死：TCP 连接正常，QQ 服务器却不再推送消息。进程不崩溃、不报错，只是消息发不进来。**心跳检测**在后台每 5 分钟检查一次，专门应对这种假活状态。
+
+**触发条件（精准，不瞎折腾）：**
+
+```
+lastReplyTime >= lastMessageTime  → 全部已回复，闲置中 → 跳过 ✅
+lastMessageTime > lastReplyTime   → 有待回复消息
+  ├─ 距发消息 < 5 分钟             → 正在处理中 → 跳过 ✅
+  └─ 距发消息 > 5 分钟             → 僵死/卡住 → 重连 🔄
+```
+
+| 场景 | 行为 |
+|------|------|
+| 你发消息，AI 秒回 | `lastReplyTime > lastMessageTime`，不触发 |
+| 你发消息，AI 处理了 2 分钟 | < 5 分钟，不触发 |
+| 你发消息，5 分钟无回复 | 判定僵死，自动重连 |
+| 对话结束，闲置中 | 不触发，安静待命 |
+
+会话 ID 持久化在 `D:\claude_memory\data\qq-bridge-sessions.json`，重启不丢失。`/clear` 可随时重置。
 
 ---
 

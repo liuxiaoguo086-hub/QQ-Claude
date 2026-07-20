@@ -12,10 +12,10 @@ import { getChannel, setBotGetter } from "./reply-channel.js";
 import { info, warn, error } from "./logger.js";
 
 let bot = null;
-let lastMessageTime = Date.now();       // 最后一次收到消息的时间
-let hasReceivedSinceRestart = false;    // 本次连接是否收到过消息（收到过才触发重连）
+let lastMessageTime = 0;               // 最后一次收到用户消息的时间
+let lastReplyTime = 0;                 // 最后一次回复用户的时间
 let heartbeatTimer = null;
-const HEARTBEAT_INTERVAL_MS = 1 * 60 * 60 * 1000;  // 1 小时
+const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000;  // 5 分钟
 
 /**
  * 启动 QQ Bot，连接官方 WebSocket
@@ -54,7 +54,6 @@ export async function createQQClient() {
   // 私聊消息
   bot.on("message.private", async (event) => {
     lastMessageTime = Date.now();
-    hasReceivedSinceRestart = true;
     const userId = String(event.user_openid || event.author?.user_openid || "");
     const messageText = (event.content || "").trim();
 
@@ -78,6 +77,7 @@ export async function createQQClient() {
       const cmdResult = handleCommand(messageText, userId);
       if (cmdResult) {
         await channel.send(cmdResult, { kind: "final" });
+        lastReplyTime = Date.now();
         return;
       }
 
@@ -95,6 +95,7 @@ export async function createQQClient() {
       // 4. 新任务
       const reply = await runTask(userId, messageText, channel);
       const delivered = await channel.sendFinal(reply);
+      lastReplyTime = Date.now();
       info(`[reply] 最终答案${delivered ? "已送达" : "发送失败"} → ${userId}`);
     } catch (err) {
       error(`[msg] 处理失败: ${err.stack || err.message}`);
@@ -105,7 +106,6 @@ export async function createQQClient() {
   // 群聊 @消息（记录，暂不处理）
   bot.on("message.group", async (event) => {
     lastMessageTime = Date.now();
-    hasReceivedSinceRestart = true;
     const groupId = String(event.group_openid || "");
     const memberId = String(event.author?.member_openid || "");
     const text = event.content || "";
@@ -113,23 +113,21 @@ export async function createQQClient() {
     info(`[msg] 群聊 | group=${groupId} | from=${memberId} | text=${text.slice(0, 80)}`);
   });
 
-  // 心跳检测：仅当之前收到过消息但突然 1h 无消息时重连（防僵死）
-  // 刚启动还没人说话时不动，避免空转重启
+  // 心跳检测：仅当"有未回复的消息且超过 10min"才重连（防僵死/卡任务）
+  // lastReplyTime >= lastMessageTime → 已回复，说明连接正常，跳过
+  // lastMessageTime > lastReplyTime → 有未回复消息，若超过 10min → 重连
   async function heartbeatCheck() {
+    if (lastReplyTime >= lastMessageTime) return;  // 全部已回复，闲置中
     const since = Date.now() - lastMessageTime;
-    if (!hasReceivedSinceRestart) {
-      // 启动后还没收到过消息，跳过
-      return;
-    }
     if (since > HEARTBEAT_INTERVAL_MS) {
-      const hours = Math.round(since / 3600000);
-      warn(`💓 ${hours}h 无消息，重连…`);
+      const mins = Math.round(since / 60000);
+      warn(`💓 消息发出 ${mins}min 无回复，重连…`);
       try {
         bot.stop?.();
         await new Promise(r => setTimeout(r, 2000));
         await bot.start();
-        lastMessageTime = Date.now();
-        hasReceivedSinceRestart = false;
+        lastMessageTime = 0;
+        lastReplyTime = 0;
         info("💓 已重连");
       } catch (e) {
         error(`💓 重连失败: ${e.message}`);
